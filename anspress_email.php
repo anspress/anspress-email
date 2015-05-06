@@ -78,6 +78,17 @@ class AnsPress_Ext_AnsPress_Email
         
         add_action( 'ap_after_new_question', array( $this, 'ap_after_new_question' ));
         add_action( 'ap_after_new_answer', array( $this, 'ap_after_new_answer' ));
+
+        add_action('ap_select_answer', array($this, 'select_answer'), 10, 3);
+
+        add_action( 'ap_publish_comment', array($this, 'new_comment'));
+
+        add_action( 'ap_after_update_question', array($this, 'ap_after_update_question'));
+
+        add_action( 'ap_after_update_answer', array($this, 'ap_after_update_answer'));
+        
+        add_action( 'ap_trash_question', array($this, 'ap_trash_question'));
+        add_action( 'ap_trash_answer', array($this, 'ap_trash_answer'));
     }
     /**
      * Load plugin text domain
@@ -117,10 +128,28 @@ class AnsPress_Ext_AnsPress_Email
         $defaults['notify_admin_trash_answer']  = true;
 
         $defaults['new_question_email_subject'] = __("New question posted by {asker}", 'AnsPress_Email');
-        $defaults['new_question_email_body']    = __("Hello!\r\n A new question is posted by {asker}\r\n\r\nTitle: {question_title}\r\nDescription:\r\n{question_excerpt}\r\nLink: {question_link}", 'AnsPress_Email');
+        $defaults['new_question_email_body']    = __("Hello!\r\nA new question is posted by {asker}\r\n\r\nTitle: {question_title}\r\nDescription:\r\n{question_excerpt}\r\n\r\nLink: {question_link}", 'AnsPress_Email');
 
         $defaults['new_answer_email_subject'] = __("New answer posted by {answerer}", 'AnsPress_Email');
-        $defaults['new_answer_email_body']    = __("Hello!\r\n A new answer is posted by {answerer} on {question_title}\r\nAnswer:\r\n{answer_excerpt}\r\nLink: {answer_link}", 'AnsPress_Email');
+        $defaults['new_answer_email_body']    = __("Hello!\r\nA new answer is posted by {answerer} on {question_title}\r\nAnswer:\r\n{answer_excerpt}\r\n\r\nLink: {answer_link}", 'AnsPress_Email');
+
+        $defaults['select_answer_email_subject'] = __("Your answer is selected as best", 'AnsPress_Email');
+        $defaults['select_answer_email_body']    = __("Hello!\r\nYour answer on '{question_title}' is selected as best.\r\n\r\nLink: {answer_link}", 'AnsPress_Email');
+
+        $defaults['new_comment_email_subject'] = __("New comment by {commenter}", 'AnsPress_Email');
+        $defaults['new_comment_email_body']    = __("Hello!\r\nA new comment posted on '{question_title}' by {commenter}.\r\n\r\nLink: {comment_link}", 'AnsPress_Email');
+
+        $defaults['edit_question_email_subject'] = __("A question is edited by {asker}", 'AnsPress_Email');
+        $defaults['edit_question_email_body']    = __("Hello!\r\nQuestion '{question_title}' is edited by {asker}.\r\n\r\nLink: {question_link}", 'AnsPress_Email');
+
+        $defaults['edit_answer_email_subject'] = __("An answer is edited by {answerer}", 'AnsPress_Email');
+        $defaults['edit_answer_email_body']    = __("Hello!\r\nAnswer on '{question_title}' is edited by {answerer}.\r\n\r\nLink: {question_link}", 'AnsPress_Email');
+
+        $defaults['trash_question_email_subject'] = __("A question is trashed by {user}", 'AnsPress_Email');
+        $defaults['trash_question_email_body']    = __("Hello!\r\nQuestion '{question_title}' is trashed by {user}.\r\n", 'AnsPress_Email');
+
+        $defaults['trash_answer_email_subject'] = __("An answer is trashed by {user}", 'AnsPress_Email');
+        $defaults['trash_answer_email_body']    = __("Hello!\r\nAnswer on '{question_title}' is trashed by {user}.\r\n", 'AnsPress_Email');
 
         return $defaults;
     }
@@ -233,6 +262,101 @@ class AnsPress_Ext_AnsPress_Email
                 'value' => @$settings['new_question_email_body'],
                 'attr' => 'style="width:100%;min-height:200px"',
             ),
+            array(
+                'name' => '__sep',
+                'type' => 'custom',
+                'html' => '<span class="ap-form-separator">' . __('New Answer', 'AnsPress_Email') . '</span>',
+            ),
+            array(
+                'name' => 'anspress_opt[new_answer_email_subject]',
+                'label' => __('Subject', 'AnsPress_Email') ,
+                'type' => 'text',
+                'value' => @$settings['new_answer_email_subject'],
+                'attr' => 'style="width:80%"',
+            ),
+            array(
+                'name' => 'anspress_opt[new_answer_email_body]',
+                'label' => __('Body', 'AnsPress_Email') ,
+                'type' => 'textarea',
+                'value' => @$settings['new_answer_email_body'],
+                'attr' => 'style="width:100%;min-height:200px"',
+            ),
+            array(
+                'name' => '__sep',
+                'type' => 'custom',
+                'html' => '<span class="ap-form-separator">' . __('Select Answer', 'AnsPress_Email') . '</span>',
+            ),
+            array(
+                'name' => 'anspress_opt[select_answer_email_subject]',
+                'label' => __('Subject', 'AnsPress_Email') ,
+                'type' => 'text',
+                'value' => @$settings['select_answer_email_subject'],
+                'attr' => 'style="width:80%"',
+            ),
+            array(
+                'name' => 'anspress_opt[select_answer_email_body]',
+                'label' => __('Body', 'AnsPress_Email') ,
+                'type' => 'textarea',
+                'value' => @$settings['select_answer_email_body'],
+                'attr' => 'style="width:100%;min-height:200px"',
+            ),
+            array(
+                'name' => '__sep',
+                'type' => 'custom',
+                'html' => '<span class="ap-form-separator">' . __('New comment', 'AnsPress_Email') . '</span>',
+            ),
+            array(
+                'name' => 'anspress_opt[new_comment_email_subject]',
+                'label' => __('Subject', 'AnsPress_Email') ,
+                'type' => 'text',
+                'value' => @$settings['new_comment_email_subject'],
+                'attr' => 'style="width:80%"',
+            ),
+            array(
+                'name' => 'anspress_opt[new_comment_email_body]',
+                'label' => __('Body', 'AnsPress_Email') ,
+                'type' => 'textarea',
+                'value' => @$settings['new_comment_email_body'],
+                'attr' => 'style="width:100%;min-height:200px"',
+            ),
+            /*array(
+                'name' => '__sep',
+                'type' => 'custom',
+                'html' => '<span class="ap-form-separator">' . __('Edit Question', 'AnsPress_Email') . '</span>',
+            ),
+            array(
+                'name' => 'anspress_opt[edit_question_email_subject]',
+                'label' => __('Subject', 'AnsPress_Email') ,
+                'type' => 'text',
+                'value' => @$settings['edit_question_email_subject'],
+                'attr' => 'style="width:80%"',
+            ),
+            array(
+                'name' => 'anspress_opt[edit_question_email_body]',
+                'label' => __('Body', 'AnsPress_Email') ,
+                'type' => 'textarea',
+                'value' => @$settings['edit_question_email_body'],
+                'attr' => 'style="width:100%;min-height:200px"',
+            ),
+            array(
+                'name' => '__sep',
+                'type' => 'custom',
+                'html' => '<span class="ap-form-separator">' . __('Edit Answer', 'AnsPress_Email') . '</span>',
+            ),
+            array(
+                'name' => 'anspress_opt[edit_answer_email_subject]',
+                'label' => __('Subject', 'AnsPress_Email') ,
+                'type' => 'text',
+                'value' => @$settings['edit_answer_email_subject'],
+                'attr' => 'style="width:80%"',
+            ),
+            array(
+                'name' => 'anspress_opt[edit_answer_email_body]',
+                'label' => __('Body', 'AnsPress_Email') ,
+                'type' => 'textarea',
+                'value' => @$settings['edit_answer_email_body'],
+                'attr' => 'style="width:100%;min-height:200px"',
+            ),*/
         ));
     }
 
@@ -305,7 +429,7 @@ class AnsPress_Ext_AnsPress_Email
                 '{answer_excerpt}'  => ap_truncate_chars( strip_tags($answer->post_content), 100),
             );
 
-            $args = apply_filters( 'ap_new_question_email_tags', $args );
+            $args = apply_filters( 'ap_new_answer_email_tags', $args );
 
             $subject = $this->replace_tags(ap_opt('new_answer_email_subject'), $args);
 
@@ -313,11 +437,195 @@ class AnsPress_Ext_AnsPress_Email
 
             //sends email
             if($subscribers)
-                foreach ($subscribers as $s) 
-                    $this->send_mail($s->user_email, $subject, $message);
+                foreach ($subscribers as $s)
+                    if($s->user_email != $current_user->user_email)
+                        $this->send_mail($s->user_email, $subject, $message);
             
             if(ap_opt('notify_admin_new_answer') && ap_opt( 'notify_admin_email' ) != $current_user->user_email)
                 $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
+    }
+
+    /**
+     * Notify answer author that his answer is selected as best
+     * @param  integer $userid
+     * @param  integer $question_id
+     * @param  integer $answer_id
+     * @return void         
+     */
+    public function select_answer($userid, $question_id, $answer_id){
+
+        $answer = get_post($answer_id);
+        
+        if($answer->post_author == $userid)
+            return;
+            
+        $args = array(
+            '{answerer}'        => ap_user_display_name($answer->post_author),
+            '{question_title}'  => $answer->post_title,
+            '{answer_link}'     => get_permalink($answer->ID),
+            '{answer_content}'  => $answer->post_content,
+            '{answer_excerpt}'  => ap_truncate_chars( strip_tags($answer->post_content), 100),
+        );
+
+        $args = apply_filters( 'ap_select_answer_email_tags', $args );
+
+        $subject = $this->replace_tags(ap_opt('select_answer_email_subject'), $args);
+
+        $message = $this->replace_tags(ap_opt('select_answer_email_body'), $args);
+
+        $this->send_mail( get_the_author_meta( 'email', $answer->post_author ), $subject, $message);
+    }
+
+    /**
+     * Notify admin on new comment and is not approved
+     * @param  object $comment Comment id
+     */
+    public function new_comment($comment)
+    {
+
+        $current_user = wp_get_current_user();
+
+        $post = get_post($comment->comment_post_ID);
+
+        $question_id = $post->post_type == 'question' ? $post->post_id : $post->post_parent;
+
+        $args = array(
+            '{commenter}'         => ap_user_display_name($comment->user_id),
+            '{question_title}'    => $post->post_title,
+            '{comment_link}'      => get_comment_link($comment),
+            '{comment_content}'   => $comment->comment_content
+        );
+
+        $args = apply_filters( 'ap_new_comment_email_tags', $args );
+
+        $subject = $this->replace_tags(ap_opt('new_comment_email_subject'), $args);
+
+        $message = $this->replace_tags(ap_opt('new_comment_email_body'), $args);
+
+        $subscribers = ap_get_question_subscribers_email($question_id);
+
+        if($subscribers)
+            foreach ($subscribers as $s)
+                if($s->user_email != $current_user->user_email)
+                    $this->send_mail($s->user_email, $subject, $message);
+            
+        /*if(ap_opt('notify_admin_new_comment') && ap_opt( 'notify_admin_email' ) != $current_user->user_email)
+            $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);*/
+    }
+
+    public function ap_after_update_question($question_id){
+        if (!ap_opt('notify_admin_edit_question'))
+            return;
+            
+        $current_user = wp_get_current_user();
+
+        $question = get_post($question_id);
+
+        // don't bother if current user is admin
+        if(ap_opt( 'notify_admin_email' ) == $current_user->user_email)
+            return;
+
+        $args = array(
+            '{asker}'             => ap_user_display_name($question->post_author),
+            '{question_title}'    => $question->post_title,
+            '{question_link}'     => get_permalink($question->ID),
+            '{question_content}'  => $question->post_content,
+            '{question_excerpt}'  => ap_truncate_chars( strip_tags($question->post_content), 100),
+        );
+
+        $args = apply_filters( 'ap_edit_question_email_tags', $args );
+
+        $subject = $this->replace_tags(ap_opt('edit_question_email_subject'), $args);
+
+        $message = $this->replace_tags(ap_opt('edit_question_email_body'), $args);
+
+        //sends email
+        $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
+        
+    }
+
+    public function ap_after_update_answer($answer_id)
+    {
+        if (!ap_opt('notify_admin_edit_answer'))
+            return;
+
+        $current_user = wp_get_current_user();
+
+        $answer = get_post($answer_id);
+
+        // don't bother if current user is admin
+        if(ap_opt( 'notify_admin_email' ) == $current_user->user_email)
+            return;
+
+        $args = array(
+            '{answerer}'          => ap_user_display_name($answer->post_author),
+            '{question_title}'    => $answer->post_title,
+            '{question_link}'     => get_permalink($answer->post_parent),
+            '{answer_content}'    => $answer->post_content
+        );
+
+        $args = apply_filters( 'ap_edit_answer_email_tags', $args );
+
+        $subject = $this->replace_tags(ap_opt('edit_answer_email_subject'), $args);
+
+        $message = $this->replace_tags(ap_opt('edit_answer_email_body'), $args);
+
+        //sends email
+        $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
+    }
+
+    public function ap_trash_question($post)
+    {
+        if (!ap_opt('notify_admin_trash_question'))
+            return;
+
+        $current_user = wp_get_current_user();
+
+        // don't bother if current user is admin
+        if(ap_opt( 'notify_admin_email' ) == $current_user->user_email)
+            return;
+
+        $args = array(
+            '{user}'              => ap_user_display_name(get_current_user_id()),
+            '{question_title}'    => $post->post_title,
+            '{question_link}'     => get_permalink($post->ID)
+        );
+
+        $args = apply_filters( 'ap_trash_question_email_tags', $args );
+
+        $subject = $this->replace_tags(ap_opt('trash_question_email_subject'), $args);
+
+        $message = $this->replace_tags(ap_opt('trash_question_email_body'), $args);
+
+        //sends email
+        $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
+    }
+
+    public function ap_trash_answer($post)
+    {
+        if (!ap_opt('notify_admin_trash_answer'))
+            return;
+
+        $current_user = wp_get_current_user();
+
+        // don't bother if current user is admin
+        if(ap_opt( 'notify_admin_email' ) == $current_user->user_email)
+            return;
+
+        $args = array(
+            '{user}'              => ap_user_display_name(get_current_user_id()),
+            '{question_title}'    => $post->post_title,
+            '{question_link}'     => get_permalink($post->post_parent)
+        );
+
+        $args = apply_filters( 'ap_trash_answer_email_tags', $args );
+
+        $subject = $this->replace_tags(ap_opt('trash_answer_email_subject'), $args);
+
+        $message = $this->replace_tags(ap_opt('trash_answer_email_body'), $args);
+
+        //sends email
+        $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
     }
 }
 
