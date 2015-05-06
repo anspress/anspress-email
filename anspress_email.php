@@ -174,14 +174,14 @@ class AnsPress_Ext_AnsPress_Email
                 'value' => @$settings['notify_admin_email'],
                 'show_desc_tip' => false,
             ),
-            array(
+            /*array(
                 'name' => 'anspress_opt[plain_email]',
                 'label' => __('Send plain email', 'AnsPress_Email') ,
                 'desc' => __('No HTML in email simple text', 'AnsPress_Email') ,
                 'type' => 'checkbox',
                 'value' => @$settings['plain_email'],
                 'show_desc_tip' => false,
-            ),
+            ),*/
             array(
                 'name' => '__sep',
                 'type' => 'custom',
