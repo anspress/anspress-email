@@ -1,6 +1,6 @@
 # AnsPress Email
 
-"AnsPress Email" is an extension for AnsPress. This extension notify site admin and users about activities by email. Site admin can configure for what he wish to receive notification. Email message and subject can be easily configured from AnsPress option panel. Currently this extension send email in simple text. 
+"AnsPress Email" is an extension for AnsPress. This extension notify site admin and users about activities by email. Site admin can configure for what they wish to receive notification. Email message and subject can be easily configured from AnsPress option panel. Currently this extension send email in simple text. 
 
 ** List of activities for which notification are sent: **
 
@@ -25,6 +25,8 @@
 Need help? feel free to ask a question here http://anspress.io/questions/ask
 
 ### Screenshot
+
+A screenshot of AnsPress email options
 
 ![AnsPress email options](http://anspress.io/wp-content/uploads/2015/05/anspress_email_option_screenshot.jpg "AnsPress email options")
 
