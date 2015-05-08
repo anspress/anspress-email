@@ -15,7 +15,7 @@
 
 ### Installation
 
-1. Download the extension zip file from your orders (http://anspress.io/orders), uncompress it.
+1. Download the extension zip file, uncompress it.
 2. Upload `anspress-email` folder to the `/wp-content/plugins/` directory
 3. Activate the plugin through the 'Plugins' menu in WordPress
 4. Configure option from AnsPress -> Options -> Email

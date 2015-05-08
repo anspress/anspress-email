@@ -11,12 +11,12 @@
 	"author": "AnsPress Team",
 	"download": {
 		"stable":{
-			"wp" : "https://downloads.wordpress.org/plugin/categories-for-anspress.zip",
-			"github" : "https://github.com/anspress/anspress/archive/master.zip"
+			"wp" : "https://github.com/anspress/anspress-email/archive/master.zip",
+			"github" : "https://github.com/anspress/anspress-email/archive/master.zip"
 		},
 		"dev":{
-			"wp" : "https://downloads.wordpress.org/plugin/categories-for-anspress.zip",
-			"github" : "https://github.com/anspress/anspress/archive/master.zip"
+			"wp" : "https://github.com/anspress/anspress-email/archive/master.zip",
+			"github" : "https://github.com/anspress/anspress-email/archive/master.zip"
 		}
 	}
 }
