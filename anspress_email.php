@@ -14,7 +14,7 @@
  * Plugin Name:       AnsPress Email
  * Plugin URI:        http://anspress.io
  * Description:       Email notification extension for AnsPress
- * Version:           1.0
+ * Version:           1.0.1
  * Author:            Rahul Aryan
  * Author URI:        http://anspress.io
  * Text Domain:       anspress_email
@@ -408,8 +408,24 @@ class AnsPress_Ext_AnsPress_Email
 
             $message = $this->replace_tags(ap_opt('new_question_email_body'), $args);
 
-            //sends email
-            $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
+            $users = ap_get_question_subscribers_data($question_id, false);
+
+            $admin_in_subscribers = false;
+
+            if($users)
+                foreach ($users as $user){
+                    
+                    //check if admin email already exists in subscribers for preventing multiple emails to admin
+                    if($user->user_email == ap_opt( 'notify_admin_email' ))
+                        $admin_in_subscribers = true;
+                    
+                    // Dont send email to poster
+                    if($user->user_email != $current_user->user_email)
+                        $this->send_mail($user->user_email, $subject, $message);
+                }
+            
+            if(!$admin_in_subscribers)
+                $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
         }
     }
 
@@ -419,7 +435,7 @@ class AnsPress_Ext_AnsPress_Email
 
             $answer = get_post($answer_id);
 
-            $subscribers = ap_get_question_subscribers_email($answer->post_parent);
+            $subscribers = ap_get_question_subscribers_data($answer->post_parent);
 
             $args = array(
                 '{answerer}'        => ap_user_display_name($answer->post_author),
@@ -502,7 +518,7 @@ class AnsPress_Ext_AnsPress_Email
 
         $message = $this->replace_tags(ap_opt('new_comment_email_body'), $args);
 
-        $subscribers = ap_get_question_subscribers_email($question_id);
+        $subscribers = ap_get_question_subscribers_data($question_id);
 
         if($subscribers)
             foreach ($subscribers as $s)
@@ -648,10 +664,37 @@ add_action( 'plugins_loaded', 'anspress_ext_AnsPress_Email' );
  * @param  integer $post_id
  * @return array
  */
-function ap_get_question_subscribers_email($post_id){
+function ap_get_question_subscribers_data($post_id, $question_subsciber = true){
     global $wpdb;
 
-    $query = $wpdb->prepare("SELECT u.user_email, u.ID, u.display_name, UNIX_TIMESTAMP(m.apmeta_date) as unix_date FROM ".$wpdb->prefix."ap_meta m INNER JOIN ".$wpdb->prefix."users as u ON u.ID = m.apmeta_userid where 1=1 AND m.apmeta_type = 'subscriber' AND m.apmeta_actionid = %d GROUP BY m.apmeta_userid", $post_id);
+    $term_ids = array();
+
+    $term_q = "";
+
+    if($question_subsciber === false){
+        
+        if(taxonomy_exists( 'question_tag' )){
+            $tags = wp_get_post_terms( $post_id, 'question_tag');
+            
+            if($tags)
+                foreach($tags as $tag)
+                    $term_ids[] = $tag->term_id;
+        }
+
+        if(taxonomy_exists( 'question_category' )){
+            $categories = wp_get_post_terms( $post_id, 'question_category');
+
+            if($categories)
+                foreach($categories as $cat)
+                    $term_ids[] = $cat->term_id;
+        }
+
+        $term_ids = implode(",", $term_ids);
+
+        $term_q = " OR (m.apmeta_actionid IN ($term_ids) AND m.apmeta_param IN ('category', 'tag') ) ";
+    }
+
+    $query = $wpdb->prepare("SELECT u.user_email, u.ID, u.display_name, UNIX_TIMESTAMP(m.apmeta_date) as unix_date FROM ".$wpdb->prefix."ap_meta m INNER JOIN ".$wpdb->prefix."users as u ON u.ID = m.apmeta_userid where m.apmeta_type = 'subscriber' AND ( m.apmeta_actionid = %d $term_q) GROUP BY m.apmeta_userid", $post_id);
 
     $key = md5($query);
 

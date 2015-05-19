@@ -4,18 +4,19 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?business=rah12@live.com&cmd=_
 Tags: anspress, question, answer, q&a, forum, stackoverflow, quora
 Requires at least: 3.5.1
 Tested up to: 4.1
-Stable tag: 1.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Email notification extension for AnsPress
+Email notification extension for AnsPress plugin. Notify admin and community about activities.
 
 == Description ==
-This is an extension for AnsPress question and answer plugin which notifiy user on new answer and comments
+
+"AnsPress Email" is an extension for AnsPress. This extension notify site admin and users about activities by email. Site admin can configure for what they wish to receive notification. Email message and subject can be easily configured from AnsPress option panel. Currently this extension send email in simple text. 
 
 == Installation ==
 
-This section describes how to install the plugin and get it working.
+You can simply install it from WP plugin repo
 
 e.g.
 

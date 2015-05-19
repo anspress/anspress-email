@@ -1,7 +1,7 @@
 {
 	"name": "AnsPress Email",
-	"description": "Notify site admin and user by email",
-	"version": "1.0",
+	"description": "Notify site admin and community by email",
+	"version": "1.0.1",
 	"tested_up_to": "4.2",
 	"updated": "",
 	"licence": "GPL-3.0+",
