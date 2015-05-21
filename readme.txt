@@ -14,6 +14,19 @@ Email notification extension for AnsPress plugin. Notify admin and community abo
 
 "AnsPress Email" is an extension for AnsPress. This extension notify site admin and users about activities by email. Site admin can configure for what they wish to receive notification. Email message and subject can be easily configured from AnsPress option panel. Currently this extension send email in simple text. 
 
+= List of activities for which notification are sent: =
+
+1. New question (only admin)
+2. New answer (admin and subscribers)
+3. New comment (subscribers, as by default WordPress notify admin about new comments)
+4. Best Answer (Selected answer author)
+5. Edit Question (only admin)
+6. Edit Answer (only admin)
+7. Delete question (only admin)
+8. Delete answer (only admin)
+9. Tags subscription
+10. Category subscription
+
 == Installation ==
 
 You can simply install it from WP plugin repo

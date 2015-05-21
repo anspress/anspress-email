@@ -12,6 +12,8 @@
 6. Edit Answer (only admin)
 7. Delete question (only admin)
 8. Delete answer (only admin)
+9. Tag subscription
+10. Category subscription
 
 ### Installation
 
