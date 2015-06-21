@@ -39,6 +39,10 @@ class AnsPress_Ext_AnsPress_Email
      */
     private static $instance;
 
+    var $emails = array();
+    var $subject;
+    var $message;
+
 
     /**
      * Get active object instance
@@ -318,45 +322,7 @@ class AnsPress_Ext_AnsPress_Email
                 'type' => 'textarea',
                 'value' => @$settings['new_comment_email_body'],
                 'attr' => 'style="width:100%;min-height:200px"',
-            ),
-            /*array(
-                'name' => '__sep',
-                'type' => 'custom',
-                'html' => '<span class="ap-form-separator">' . __('Edit Question', 'AnsPress_Email') . '</span>',
-            ),
-            array(
-                'name' => 'anspress_opt[edit_question_email_subject]',
-                'label' => __('Subject', 'AnsPress_Email') ,
-                'type' => 'text',
-                'value' => @$settings['edit_question_email_subject'],
-                'attr' => 'style="width:80%"',
-            ),
-            array(
-                'name' => 'anspress_opt[edit_question_email_body]',
-                'label' => __('Body', 'AnsPress_Email') ,
-                'type' => 'textarea',
-                'value' => @$settings['edit_question_email_body'],
-                'attr' => 'style="width:100%;min-height:200px"',
-            ),
-            array(
-                'name' => '__sep',
-                'type' => 'custom',
-                'html' => '<span class="ap-form-separator">' . __('Edit Answer', 'AnsPress_Email') . '</span>',
-            ),
-            array(
-                'name' => 'anspress_opt[edit_answer_email_subject]',
-                'label' => __('Subject', 'AnsPress_Email') ,
-                'type' => 'text',
-                'value' => @$settings['edit_answer_email_subject'],
-                'attr' => 'style="width:80%"',
-            ),
-            array(
-                'name' => 'anspress_opt[edit_answer_email_body]',
-                'label' => __('Body', 'AnsPress_Email') ,
-                'type' => 'textarea',
-                'value' => @$settings['edit_answer_email_body'],
-                'attr' => 'style="width:100%;min-height:200px"',
-            ),*/
+            )
         ));
     }
 
@@ -376,6 +342,17 @@ class AnsPress_Ext_AnsPress_Email
 
     public function send_mail($email, $subject, $message){
         wp_mail( $email, $subject, $message, $this->header() );
+    }
+
+    public function initiate_send_email()
+    {
+        $this->emails = array_unique($this->emails);
+
+        if(!empty($this->emails) && is_array($this->emails)){
+            
+            foreach ($this->emails as $email)
+                $this->send_mail($email, $this->subject, $this->message);                
+        }
     }
 
     /**
@@ -404,28 +381,24 @@ class AnsPress_Ext_AnsPress_Email
 
             $args = apply_filters( 'ap_new_question_email_tags', $args );
 
-            $subject = $this->replace_tags(ap_opt('new_question_email_subject'), $args);
+            $this->subject = $this->replace_tags(ap_opt('new_question_email_subject'), $args);
 
-            $message = $this->replace_tags(ap_opt('new_question_email_body'), $args);
+            $this->message = $this->replace_tags(ap_opt('new_question_email_body'), $args);
 
-            $users = ap_get_question_subscribers_data($question_id, false);
+            $this->emails[] = ap_opt( 'notify_admin_email' );
 
-            $admin_in_subscribers = false;
-
-            if($users)
-                foreach ($users as $user){
-                    
-                    //check if admin email already exists in subscribers for preventing multiple emails to admin
-                    if($user->user_email == ap_opt( 'notify_admin_email' ))
-                        $admin_in_subscribers = true;
-                    
-                    // Dont send email to poster
-                    if($user->user_email != $current_user->user_email)
-                        $this->send_mail($user->user_email, $subject, $message);
-                }
+            if( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate') ){
+                $users = ap_get_question_subscribers_data($question_id, false);
+                
+                if($users)
+                    foreach ($users as $user){                     
+                        // Dont send email to poster
+                        if($user->user_email != $current_user->user_email)
+                            $this->emails[] = $user->user_email;                        
+                    }
+            }
             
-            if(!$admin_in_subscribers)
-                $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
+            $this->initiate_send_email();            
         }
     }
 
@@ -434,8 +407,6 @@ class AnsPress_Ext_AnsPress_Email
             $current_user = wp_get_current_user();
 
             $answer = get_post($answer_id);
-
-            $subscribers = ap_get_question_subscribers_data($answer->post_parent);
 
             $args = array(
                 '{answerer}'        => ap_user_display_name($answer->post_author),
@@ -447,18 +418,25 @@ class AnsPress_Ext_AnsPress_Email
 
             $args = apply_filters( 'ap_new_answer_email_tags', $args );
 
-            $subject = $this->replace_tags(ap_opt('new_answer_email_subject'), $args);
+            $this->subject = $this->replace_tags(ap_opt('new_answer_email_subject'), $args);
 
-            $message = $this->replace_tags(ap_opt('new_answer_email_body'), $args);
+            $this->message = $this->replace_tags(ap_opt('new_answer_email_body'), $args);
 
-            //sends email
-            if($subscribers)
-                foreach ($subscribers as $s)
-                    if($s->user_email != $current_user->user_email)
-                        $this->send_mail($s->user_email, $subject, $message);
-            
-            if(ap_opt('notify_admin_new_answer') && ap_opt( 'notify_admin_email' ) != $current_user->user_email)
-                $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
+            $this->emails = array();
+
+            if(ap_opt('notify_admin_new_answer') && $current_user->user_email != ap_opt('notify_admin_email'))
+                $this->emails[] = ap_opt( 'notify_admin_email' );
+
+            if( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate')){
+                $subscribers = ap_get_question_subscribers_data($answer->post_parent);
+
+                if($subscribers)
+                    foreach ($subscribers as $s)
+                        if($s->user_email != $current_user->user_email)
+                            $this->emails[] = $s->user_email;
+            }
+
+            $this->initiate_send_email(); 
     }
 
     /**
