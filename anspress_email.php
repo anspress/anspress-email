@@ -14,7 +14,7 @@
  * Plugin Name:       AnsPress Email
  * Plugin URI:        http://anspress.io
  * Description:       Email notification extension for AnsPress
- * Version:           1.0.1
+ * Version:           1.0.1-beta
  * Author:            Rahul Aryan
  * Author URI:        http://anspress.io
  * Text Domain:       anspress_email
