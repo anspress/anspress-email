@@ -14,7 +14,7 @@
  * Plugin Name:       AnsPress Email
  * Plugin URI:        http://anspress.io
  * Description:       Email notification extension for AnsPress
- * Version:           1.0.2
+ * Version:           1.2
  * Author:            Rahul Aryan
  * Author URI:        http://anspress.io
  * Text Domain:       anspress_email
@@ -697,6 +697,16 @@ function anspress_ext_AnsPress_Email() {
     $anspress_ext_AnsPress_Email = new AnsPress_Ext_AnsPress_Email();
 }
 add_action( 'plugins_loaded', 'anspress_ext_AnsPress_Email' );
+
+function anspress_activate_anspress_email(){
+    $settings = get_option( 'anspress_opt');
+    unset($settings['edit_question_email_subject']);
+    unset($settings['edit_question_email_body']);
+    unset($settings['edit_answer_email_subject']);
+    unset($settings['edit_answer_email_body']);
+    update_option( 'anspress_opt', $settings);
+}
+register_activation_hook(__FILE__, 'anspress_activate_anspress_email');
 
 /**
  * Get the email ids of all subscribers of question
