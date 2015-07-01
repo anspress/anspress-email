@@ -146,8 +146,8 @@ class AnsPress_Ext_AnsPress_Email
         $defaults['edit_question_email_subject'] = __("A question is edited by {editor}", 'AnsPress_Email');
         $defaults['edit_question_email_body']    = __("Hello!\r\nQuestion '{question_title}' is edited by {editor}.\r\n\r\nLink: {question_link}", 'AnsPress_Email');
 
-        $defaults['edit_answer_email_subject'] = __("An answer is edited by {answerer}", 'AnsPress_Email');
-        $defaults['edit_answer_email_body']    = __("Hello!\r\nAnswer on '{question_title}' is edited by {answerer}.\r\n\r\nLink: {question_link}", 'AnsPress_Email');
+        $defaults['edit_answer_email_subject'] = __("An answer is edited by {editor}", 'AnsPress_Email');
+        $defaults['edit_answer_email_body']    = __("Hello!\r\nAnswer on '{question_title}' is edited by {editor}.\r\n\r\nLink: {question_link}", 'AnsPress_Email');
 
         $defaults['trash_question_email_subject'] = __("A question is trashed by {user}", 'AnsPress_Email');
         $defaults['trash_question_email_body']    = __("Hello!\r\nQuestion '{question_title}' is trashed by {user}.\r\n", 'AnsPress_Email');
@@ -340,6 +340,25 @@ class AnsPress_Ext_AnsPress_Email
                 'label' => __('Body', 'AnsPress_Email') ,
                 'type' => 'textarea',
                 'value' => @$settings['edit_question_email_body'],
+                'attr' => 'style="width:100%;min-height:200px"',
+            ),
+            array(
+                'name' => '__sep',
+                'type' => 'custom',
+                'html' => '<span class="ap-form-separator">' . __('Edit answer', 'AnsPress_Email') . '</span>',
+            ),
+            array(
+                'name' => 'anspress_opt[edit_answer_email_subject]',
+                'label' => __('Subject', 'AnsPress_Email') ,
+                'type' => 'text',
+                'value' => @$settings['edit_answer_email_subject'],
+                'attr' => 'style="width:80%"',
+            ),
+            array(
+                'name' => 'anspress_opt[edit_answer_email_body]',
+                'label' => __('Body', 'AnsPress_Email') ,
+                'type' => 'textarea',
+                'value' => @$settings['edit_answer_email_body'],
                 'attr' => 'style="width:100%;min-height:200px"',
             )
         ));
@@ -535,8 +554,6 @@ class AnsPress_Ext_AnsPress_Email
     }
 
     public function ap_after_update_question($question_id){
-        if (!ap_opt('notify_admin_edit_question'))
-            return;
             
         $current_user = wp_get_current_user();
 
@@ -544,7 +561,7 @@ class AnsPress_Ext_AnsPress_Email
 
         $this->emails = array();        
         
-        if(ap_opt( 'notify_admin_email' ) != $current_user->user_email)
+        if(ap_opt( 'notify_admin_email' ) != $current_user->user_email && ap_opt('notify_admin_edit_question'))
             $this->emails[] = ap_opt( 'notify_admin_email' );
 
         $post_author  = get_user_by( 'id', $question->post_author );
@@ -582,12 +599,22 @@ class AnsPress_Ext_AnsPress_Email
 
         $answer = get_post($answer_id);
 
-        // don't bother if current user is admin
-        if(ap_opt( 'notify_admin_email' ) == $current_user->user_email)
+        $this->emails = array();        
+        
+        if(ap_opt( 'notify_admin_email' ) != $current_user->user_email && ap_opt('notify_admin_edit_answer'))
+            $this->emails[] = ap_opt( 'notify_admin_email' );
+
+        $post_author  = get_user_by( 'id', $answer->post_author );
+
+        if($post_author && $post_author->data->user_email != $current_user->user_email)
+            $this->emails[] = $post_author->data->user_email;
+
+        if(!is_array($this->emails) || empty($this->emails))
             return;
 
         $args = array(
             '{answerer}'          => ap_user_display_name($answer->post_author),
+            '{editor}'            => ap_user_display_name(get_current_user_id()),
             '{question_title}'    => $answer->post_title,
             '{question_link}'     => get_permalink($answer->post_parent),
             '{answer_content}'    => $answer->post_content
@@ -595,12 +622,11 @@ class AnsPress_Ext_AnsPress_Email
 
         $args = apply_filters( 'ap_edit_answer_email_tags', $args );
 
-        $subject = $this->replace_tags(ap_opt('edit_answer_email_subject'), $args);
+        $this->subject = $this->replace_tags(ap_opt('edit_answer_email_subject'), $args);
 
-        $message = $this->replace_tags(ap_opt('edit_answer_email_body'), $args);
+        $this->message = $this->replace_tags(ap_opt('edit_answer_email_body'), $args);
 
-        //sends email
-        $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
+        $this->initiate_send_email();   
     }
 
     public function ap_trash_question($post)
