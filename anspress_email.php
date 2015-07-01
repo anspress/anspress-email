@@ -143,8 +143,8 @@ class AnsPress_Ext_AnsPress_Email
         $defaults['new_comment_email_subject'] = __("New comment by {commenter}", 'AnsPress_Email');
         $defaults['new_comment_email_body']    = __("Hello!\r\nA new comment posted on '{question_title}' by {commenter}.\r\n\r\nLink: {comment_link}", 'AnsPress_Email');
 
-        $defaults['edit_question_email_subject'] = __("A question is edited by {asker}", 'AnsPress_Email');
-        $defaults['edit_question_email_body']    = __("Hello!\r\nQuestion '{question_title}' is edited by {asker}.\r\n\r\nLink: {question_link}", 'AnsPress_Email');
+        $defaults['edit_question_email_subject'] = __("A question is edited by {editor}", 'AnsPress_Email');
+        $defaults['edit_question_email_body']    = __("Hello!\r\nQuestion '{question_title}' is edited by {editor}.\r\n\r\nLink: {question_link}", 'AnsPress_Email');
 
         $defaults['edit_answer_email_subject'] = __("An answer is edited by {answerer}", 'AnsPress_Email');
         $defaults['edit_answer_email_body']    = __("Hello!\r\nAnswer on '{question_title}' is edited by {answerer}.\r\n\r\nLink: {question_link}", 'AnsPress_Email');
@@ -321,6 +321,25 @@ class AnsPress_Ext_AnsPress_Email
                 'label' => __('Body', 'AnsPress_Email') ,
                 'type' => 'textarea',
                 'value' => @$settings['new_comment_email_body'],
+                'attr' => 'style="width:100%;min-height:200px"',
+            ),
+            array(
+                'name' => '__sep',
+                'type' => 'custom',
+                'html' => '<span class="ap-form-separator">' . __('Edit question', 'AnsPress_Email') . '</span>',
+            ),
+            array(
+                'name' => 'anspress_opt[edit_question_email_subject]',
+                'label' => __('Subject', 'AnsPress_Email') ,
+                'type' => 'text',
+                'value' => @$settings['edit_question_email_subject'],
+                'attr' => 'style="width:80%"',
+            ),
+            array(
+                'name' => 'anspress_opt[edit_question_email_body]',
+                'label' => __('Body', 'AnsPress_Email') ,
+                'type' => 'textarea',
+                'value' => @$settings['edit_question_email_body'],
                 'attr' => 'style="width:100%;min-height:200px"',
             )
         ));
@@ -523,12 +542,22 @@ class AnsPress_Ext_AnsPress_Email
 
         $question = get_post($question_id);
 
-        // don't bother if current user is admin
-        if(ap_opt( 'notify_admin_email' ) == $current_user->user_email)
+        $this->emails = array();        
+        
+        if(ap_opt( 'notify_admin_email' ) != $current_user->user_email)
+            $this->emails[] = ap_opt( 'notify_admin_email' );
+
+        $post_author  = get_user_by( 'id', $question->post_author );
+
+        if($post_author && $post_author->data->user_email != $current_user->user_email)
+            $this->emails[] = $post_author->data->user_email;
+
+        if(!is_array($this->emails) || empty($this->emails))
             return;
 
         $args = array(
             '{asker}'             => ap_user_display_name($question->post_author),
+            '{editor}'            => ap_user_display_name(get_current_user_id()),
             '{question_title}'    => $question->post_title,
             '{question_link}'     => get_permalink($question->ID),
             '{question_content}'  => $question->post_content,
@@ -537,13 +566,11 @@ class AnsPress_Ext_AnsPress_Email
 
         $args = apply_filters( 'ap_edit_question_email_tags', $args );
 
-        $subject = $this->replace_tags(ap_opt('edit_question_email_subject'), $args);
+        $this->subject = $this->replace_tags(ap_opt('edit_question_email_subject'), $args);
 
-        $message = $this->replace_tags(ap_opt('edit_question_email_body'), $args);
+        $this->message = $this->replace_tags(ap_opt('edit_question_email_body'), $args);
 
-        //sends email
-        $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);
-        
+        $this->initiate_send_email();        
     }
 
     public function ap_after_update_answer($answer_id)
