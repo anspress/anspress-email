@@ -481,7 +481,7 @@ class AnsPress_Ext_AnsPress_Email
 
         $post = get_post($comment->comment_post_ID);
 
-        $question_id = $post->post_type == 'question' ? $post->post_id : $post->post_parent;
+        $post_id = $post->ID;
 
         $args = array(
             '{commenter}'         => ap_user_display_name($comment->user_id),
@@ -492,19 +492,27 @@ class AnsPress_Ext_AnsPress_Email
 
         $args = apply_filters( 'ap_new_comment_email_tags', $args );
 
-        $subject = $this->replace_tags(ap_opt('new_comment_email_subject'), $args);
+        $this->subject = $this->replace_tags(ap_opt('new_comment_email_subject'), $args);
 
-        $message = $this->replace_tags(ap_opt('new_comment_email_body'), $args);
+        $this->message = $this->replace_tags(ap_opt('new_comment_email_body'), $args);
 
-        $subscribers = ap_get_question_subscribers_data($question_id);
+        $this->emails = array();
 
-        if($subscribers)
+        $subscribers = ap_get_comments_subscribers_data($post_id);
+
+        $post_author  = get_user_by( 'id', $post->post_author );
+
+        if(!ap_in_array_r($post_author->data->user_email, $subscribers)){
+            $subscribers[] = (object) array('user_email' => $post_author->data->user_email, 'ID' => $post_author->ID, 'display_name' => $post_author->data->display_name );
+        }
+
+        if($subscribers){            
             foreach ($subscribers as $s)
                 if($s->user_email != $current_user->user_email)
-                    $this->send_mail($s->user_email, $subject, $message);
-            
-        /*if(ap_opt('notify_admin_new_comment') && ap_opt( 'notify_admin_email' ) != $current_user->user_email)
-            $this->send_mail(ap_opt( 'notify_admin_email' ), $subject, $message);*/
+                    $this->emails[] = $s->user_email;
+        }
+
+        $this->initiate_send_email(); 
     }
 
     public function ap_after_update_question($question_id){
@@ -686,3 +694,30 @@ function ap_get_question_subscribers_data($post_id, $question_subsciber = true){
     return $q;
 }
 
+function ap_get_comments_subscribers_data($post_id){
+    global $wpdb;
+
+    $query = $wpdb->prepare("SELECT u.user_email, u.ID, u.display_name, UNIX_TIMESTAMP(m.apmeta_date) as unix_date FROM ".$wpdb->prefix."ap_meta m INNER JOIN ".$wpdb->prefix."users as u ON u.ID = m.apmeta_userid where m.apmeta_type = 'subscriber' AND m.apmeta_value = %d AND m.apmeta_param = 'comment' GROUP BY m.apmeta_userid", $post_id);
+
+    $key = md5($query);
+
+    $q = wp_cache_get( $key, 'ap' );
+
+    if($q === false){
+        $q = $wpdb->get_results($query);
+        wp_cache_set( $key, $q, 'ap' );
+    }
+
+    return $q;
+}
+
+if(!function_exists('ap_in_array_r')){
+    function ap_in_array_r($needle, $haystack, $strict = false) {
+        foreach ($haystack as $item) {
+            if (($strict ? $item === $needle : $item == $needle) || (is_array($item) && in_array_r($needle, $item, $strict))) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
