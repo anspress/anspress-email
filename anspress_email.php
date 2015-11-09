@@ -564,6 +564,9 @@ class AnsPress_Ext_AnsPress_Email
 
 	public function ap_after_update_question($question_id) {
 
+		if ( ! ap_opt( 'notify_admin_edit_question' ) ) {
+			return; }
+			
 		$current_user = wp_get_current_user();
 
 		$question = get_post( $question_id );
