@@ -186,7 +186,7 @@ class AnsPress_Ext_AnsPress_Email
 			array(
 				'name' => 'anspress_opt[notify_admin_email]',
 				'label' => __( 'Admin email', 'AnsPress_Email' ),
-				'desc' => __( 'Enter emial where admin notification were send', 'AnsPress_Email' ),
+				'desc' => __( 'Enter email where admin notification will be sent', 'AnsPress_Email' ),
 				'type' => 'text',
 				'value' => $this->value( 'notify_admin_email' ),
 				'show_desc_tip' => false,
@@ -200,7 +200,7 @@ class AnsPress_Ext_AnsPress_Email
 			array(
 				'name' => 'anspress_opt[notify_admin_new_question]',
 				'label' => __( 'New question', 'AnsPress_Email' ),
-				'desc' => __( 'Send email to admin for every new question.', 'AnsPress_Email' ),
+				'desc' => __( 'Send email to admin for every new question', 'AnsPress_Email' ),
 				'type' => 'checkbox',
 				'value' => $this->value( 'notify_admin_new_question' ),
 				'show_desc_tip' => false,
@@ -208,7 +208,7 @@ class AnsPress_Ext_AnsPress_Email
 			array(
 				'name' => 'anspress_opt[notify_admin_new_answer]',
 				'label' => __( 'New answer', 'AnsPress_Email' ),
-				'desc' => __( 'Send email to admin for every new answer.', 'AnsPress_Email' ),
+				'desc' => __( 'Send email to admin for every new answer', 'AnsPress_Email' ),
 				'type' => 'checkbox',
 				'value' => $this->value( 'notify_admin_new_answer' ),
 				'show_desc_tip' => false,
@@ -216,7 +216,7 @@ class AnsPress_Ext_AnsPress_Email
 			array(
 				'name' => 'anspress_opt[notify_admin_new_comment]',
 				'label' => __( 'New comment', 'AnsPress_Email' ),
-				'desc' => __( 'Send email to admin for every new comment.', 'AnsPress_Email' ),
+				'desc' => __( 'Send email to admin for every new comment', 'AnsPress_Email' ),
 				'type' => 'checkbox',
 				'value' => $this->value( 'notify_admin_new_comment' ),
 				'show_desc_tip' => false,
@@ -524,28 +524,22 @@ class AnsPress_Ext_AnsPress_Email
 	public function new_comment($comment) {
 
 		$current_user = wp_get_current_user();
-
 		$post = get_post( $comment->comment_post_ID );
-
 		$post_id = $post->ID;
-
 		$args = array(
 			'{commenter}'         => ap_user_display_name( $comment->user_id ),
 			'{question_title}'    => $post->post_title,
 			'{comment_link}'      => get_comment_link( $comment ),
 			'{comment_content}'   => $comment->comment_content,
+			'{comment_excerpt}'   => ap_truncate_chars( strip_tags( $comment->comment_content ), 100 ),
 		);
 
 		$args = apply_filters( 'ap_new_comment_email_tags', $args );
 
 		$this->subject = $this->replace_tags( ap_opt( 'new_comment_email_subject' ), $args );
-
 		$this->message = $this->replace_tags( ap_opt( 'new_comment_email_body' ), $args );
-
 		$this->emails = array();
-
 		$subscribers = ap_get_comments_subscribers_data( $post_id );
-
 		$post_author  = get_user_by( 'id', $post->post_author );
 
 		if ( ! ap_in_array_r( $post_author->data->user_email, $subscribers ) ) {
