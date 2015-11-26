@@ -166,7 +166,7 @@ class AnsPress_Ext_AnsPress_Email
 	public function value($name) {
 		$settings = ap_opt();
 		if ( isset( $settings[ $name ] ) ) {
-			return wp_unslash( $settings[ $name ] );
+			return str_replace( "//", "", $settings[ $name ] );
         }
 
 		return '';
@@ -186,7 +186,7 @@ class AnsPress_Ext_AnsPress_Email
 			array(
 				'name' => 'anspress_opt[notify_admin_email]',
 				'label' => __( 'Admin email', 'AnsPress_Email' ),
-				'desc' => __( 'Enter emial where admin notification were send', 'AnsPress_Email' ),
+				'desc' => __( 'Enter email where admin notification should be sent', 'AnsPress_Email' ),
 				'type' => 'text',
 				'value' => $this->value( 'notify_admin_email' ),
 				'show_desc_tip' => false,
@@ -393,9 +393,9 @@ class AnsPress_Ext_AnsPress_Email
 		$this->emails = array_unique( $this->emails );
 
 		if ( ! empty( $this->emails ) && is_array( $this->emails ) ) {
-
 			foreach ( $this->emails as $email ) {
-				$this->send_mail( $email, $this->subject, $this->message ); }
+				$this->send_mail( $email, $this->subject, $this->message );
+			}
 		}
 	}
 
@@ -431,8 +431,8 @@ class AnsPress_Ext_AnsPress_Email
 
 			$this->emails[] = ap_opt( 'notify_admin_email' );
 
-			if ( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate') ) {
-				$users = ap_get_question_subscribers_data( $question_id, false );
+			/*if ( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate') ) {
+				$users = ap_get_subscribers( $question_id, 'q_all', 100 );
 
 				if ( $users ) {
 					foreach ( $users as $user ) {
@@ -441,7 +441,7 @@ class AnsPress_Ext_AnsPress_Email
 							$this->emails[] = $user->user_email; }
 					}
 				}
-			}
+			}*/
 
 			$this->initiate_send_email();
 		}
@@ -466,19 +466,20 @@ class AnsPress_Ext_AnsPress_Email
 			$this->subject = $this->replace_tags( ap_opt( 'new_answer_email_subject' ), $args );
 
 			$this->message = $this->replace_tags( ap_opt( 'new_answer_email_body' ), $args );
-
+			var_dump($this->message);
 			$this->emails = array();
 
 			if ( ap_opt( 'notify_admin_new_answer' ) && $current_user->user_email != ap_opt( 'notify_admin_email' ) ) {
-				$this->emails[] = ap_opt( 'notify_admin_email' ); }
+				$this->emails[] = ap_opt( 'notify_admin_email' );
+			}
 
 			if ( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate') ) {
-				$subscribers = ap_get_question_subscribers_data( $answer->post_parent );
-
+				$subscribers = ap_get_subscribers( $answer->ID, 'a_all', 100, true );
 				if ( $subscribers ) {
 					foreach ( $subscribers as $s ) {
 						if ( $s->user_email != $current_user->user_email ) {
-							$this->emails[] = $s->user_email; }
+							$this->emails[] = $s->user_email;
+						}
 					}
 				}
 			}
