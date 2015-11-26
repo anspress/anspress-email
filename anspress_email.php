@@ -547,6 +547,10 @@ class AnsPress_Ext_AnsPress_Email
 
 		$subscribers = ap_get_comments_subscribers_data( $post_id );
 
+		$subscribe_type = $post->post_type == 'answer' ? 'a_all' : 'q_post';
+
+		$subscribers = ap_get_subscribers( $post_id, $subscribe_type, 100, true );
+
 		$post_author  = get_user_by( 'id', $post->post_author );
 
 		if ( ! ap_in_array_r( $post_author->data->user_email, $subscribers ) ) {
@@ -556,7 +560,8 @@ class AnsPress_Ext_AnsPress_Email
 		if ( $subscribers ) {
 			foreach ( $subscribers as $s ) {
 				if ( $s->user_email != $current_user->user_email ) {
-					$this->emails[] = $s->user_email; }
+					$this->emails[] = $s->user_email; 
+				}
 			}
 		}
 
@@ -572,15 +577,28 @@ class AnsPress_Ext_AnsPress_Email
 		$this->emails = array();
 
 		if ( ap_opt( 'notify_admin_email' ) != $current_user->user_email && ap_opt( 'notify_admin_edit_question' ) ) {
-			$this->emails[] = ap_opt( 'notify_admin_email' ); }
+			$this->emails[] = ap_opt( 'notify_admin_email' );
+		}
 
-		$post_author  = get_user_by( 'id', $question->post_author );
+		$subscribers = ap_get_subscribers( $question_id, array('q_post', 'q_all'), 100, true );
 
-		if ( $post_author && $post_author->data->user_email != $current_user->user_email ) {
-			$this->emails[] = $post_author->data->user_email; }
+		$post_author  = get_user_by( 'id', $post->post_author );
+
+		if ( ! ap_in_array_r( $post_author->data->user_email, $subscribers ) ) {
+			$subscribers[] = (object) array( 'user_email' => $post_author->data->user_email, 'ID' => $post_author->ID, 'display_name' => $post_author->data->display_name );
+		}
+
+		if ( $subscribers ) {
+			foreach ( $subscribers as $s ) {
+				if ( !empty($s->user_email) && $s->user_email != $current_user->user_email ) {
+					$this->emails[] = $s->user_email; 
+				}
+			}
+		}
 
 		if ( ! is_array( $this->emails ) || empty( $this->emails ) ) {
-			return; }
+			return;
+		}
 
 		$args = array(
 			'{asker}'             => ap_user_display_name( $question->post_author ),
@@ -603,7 +621,8 @@ class AnsPress_Ext_AnsPress_Email
 	public function ap_after_update_answer($answer_id) {
 
 		if ( ! ap_opt( 'notify_admin_edit_answer' ) ) {
-			return; }
+			return;
+		}
 
 		$current_user = wp_get_current_user();
 
@@ -614,13 +633,25 @@ class AnsPress_Ext_AnsPress_Email
 		if ( ap_opt( 'notify_admin_email' ) != $current_user->user_email && ap_opt( 'notify_admin_edit_answer' ) ) {
 			$this->emails[] = ap_opt( 'notify_admin_email' ); }
 
+		$subscribers = ap_get_subscribers( $answer_id, 'a_all', 100, true );
+
 		$post_author  = get_user_by( 'id', $answer->post_author );
 
-		if ( $post_author && $post_author->data->user_email != $current_user->user_email ) {
-			$this->emails[] = $post_author->data->user_email; }
+		if ( ! ap_in_array_r( $post_author->data->user_email, $subscribers ) ) {
+			$subscribers[] = (object) array( 'user_email' => $post_author->data->user_email, 'ID' => $post_author->ID, 'display_name' => $post_author->data->display_name );
+		}
+
+		if ( $subscribers ) {
+			foreach ( $subscribers as $s ) {
+				if ( !empty($s->user_email) && $s->user_email != $current_user->user_email ) {
+					$this->emails[] = $s->user_email; 
+				}
+			}
+		}
 
 		if ( ! is_array( $this->emails ) || empty( $this->emails ) ) {
-			return; }
+			return;
+		}
 
 		$args = array(
 			'{answerer}'          => ap_user_display_name( $answer->post_author ),
@@ -642,7 +673,8 @@ class AnsPress_Ext_AnsPress_Email
 	public function ap_trash_question($post) {
 
 		if ( ! ap_opt( 'notify_admin_trash_question' ) ) {
-			return; }
+			return;
+		}
 
 		$current_user = wp_get_current_user();
 
@@ -675,7 +707,8 @@ class AnsPress_Ext_AnsPress_Email
 
 		// don't bother if current user is admin
 		if ( ap_opt( 'notify_admin_email' ) == $current_user->user_email ) {
-			return; }
+			return;
+		}
 
 		$args = array(
 			'{user}'              => ap_user_display_name( get_current_user_id() ),
