@@ -466,7 +466,7 @@ class AnsPress_Ext_AnsPress_Email
 			$this->subject = $this->replace_tags( ap_opt( 'new_answer_email_subject' ), $args );
 
 			$this->message = $this->replace_tags( ap_opt( 'new_answer_email_body' ), $args );
-			var_dump($this->message);
+
 			$this->emails = array();
 
 			if ( ap_opt( 'notify_admin_new_answer' ) && $current_user->user_email != ap_opt( 'notify_admin_email' ) ) {
