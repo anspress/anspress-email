@@ -755,51 +755,10 @@ register_activation_hook( __FILE__, 'anspress_activate_anspress_email' );
  * Get the email ids of all subscribers of question
  * @param  integer $post_id
  * @return array
+ * @deprecated 2.4.3
  */
 function ap_get_question_subscribers_data($post_id, $question_subsciber = true) {
-	global $wpdb;
-
-	$term_ids = array();
-
-	$term_q = '';
-
-	if ( $question_subsciber === false ) {
-
-		if ( taxonomy_exists( 'question_tag' ) ) {
-			$tags = wp_get_post_terms( $post_id, 'question_tag' );
-
-			if ( $tags ) {
-				foreach ( $tags as $tag ) {
-					$term_ids[] = $tag->term_id; }
-			}
-		}
-
-		if ( taxonomy_exists( 'question_category' ) ) {
-			$categories = wp_get_post_terms( $post_id, 'question_category' );
-
-			if ( $categories ) {
-				foreach ( $categories as $cat ) {
-					$term_ids[] = $cat->term_id; }
-			}
-		}
-
-		$term_ids = implode( ',', $term_ids );
-
-		$term_q = " OR (m.apmeta_actionid IN ($term_ids) AND m.apmeta_param IN ('category', 'tag') ) ";
-	}
-
-	$query = $wpdb->prepare( 'SELECT u.user_email, u.ID, u.display_name, UNIX_TIMESTAMP(m.apmeta_date) as unix_date FROM '.$wpdb->prefix.'ap_meta m INNER JOIN '.$wpdb->prefix."users as u ON u.ID = m.apmeta_userid where m.apmeta_type = 'subscriber' AND ( m.apmeta_actionid = %d $term_q) GROUP BY m.apmeta_userid", $post_id );
-
-	$key = md5( $query );
-
-	$q = wp_cache_get( $key, 'ap' );
-
-	if ( $q === false ) {
-		$q = $wpdb->get_results( $query );
-		wp_cache_set( $key, $q, 'ap' );
-	}
-
-	return $q;
+	_deprecated_function( 'ap_get_question_subscribers_data', '2.4.3', '' );
 }
 
 function ap_get_comments_subscribers_data($post_id) {
