@@ -557,7 +557,11 @@ class AnsPress_Ext_AnsPress_Email
 
 		if ( $subscribers ) {
 			foreach ( $subscribers as $s ) {
-				if ( $s->user_email != $current_user->user_email ) {
+
+				// Do not send email to author of comment himself.
+				// Do not send email to admin, he will get email from wordpress by default.
+				if ( $s->user_email != $current_user->user_email &&
+					 $s->user_email != ap_opt( 'notify_admin_email' )) {
 					$this->emails[] = $s->user_email; 
 				}
 			}
