@@ -545,8 +545,6 @@ class AnsPress_Ext_AnsPress_Email
 
 		$this->emails = array();
 
-		$subscribers = ap_get_comments_subscribers_data( $post_id );
-
 		$subscribe_type = $post->post_type == 'answer' ? 'a_all' : 'q_post';
 
 		$subscribers = ap_get_subscribers( $post_id, $subscribe_type, 100, true );
