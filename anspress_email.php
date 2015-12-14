@@ -494,12 +494,13 @@ class AnsPress_Ext_AnsPress_Email
 	 * @param  integer $answer_id
 	 * @return void
 	 */
-	public function select_answer($userid, $question_id, $answer_id) {
+	public function select_answer($selecting_userid, $question_id, $answer_id) {
 
 		$answer = get_post( $answer_id );
 
-		if ( $answer->post_author == $userid ) {
-			return; }
+		if ( $answer->post_author == get_current_user_id() ) {
+			return;
+		}
 
 		$args = array(
 			'{answerer}'        => ap_user_display_name( $answer->post_author ),
