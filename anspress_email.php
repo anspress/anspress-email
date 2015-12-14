@@ -474,7 +474,7 @@ class AnsPress_Ext_AnsPress_Email
 			}
 
 			if ( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate') ) {
-				$subscribers = ap_get_subscribers( $answer->ID, 'a_all', 100, true );
+				$subscribers = ap_get_subscribers( $answer->post_parent, 'q_all', 100, true );
 				if ( $subscribers ) {
 					foreach ( $subscribers as $s ) {
 						if ( $s->user_email != $current_user->user_email ) {
@@ -644,7 +644,7 @@ class AnsPress_Ext_AnsPress_Email
 		if ( $subscribers ) {
 			foreach ( $subscribers as $s ) {
 				if ( !empty($s->user_email) && $s->user_email != $current_user->user_email ) {
-					$this->emails[] = $s->user_email; 
+					$this->emails[] = $s->user_email;
 				}
 			}
 		}
