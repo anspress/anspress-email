@@ -761,21 +761,11 @@ function ap_get_question_subscribers_data($post_id, $question_subsciber = true) 
 	_deprecated_function( 'ap_get_question_subscribers_data', '2.4.3', '' );
 }
 
+/**
+ * @deprecated 2.4.3
+ */
 function ap_get_comments_subscribers_data($post_id) {
-	global $wpdb;
-
-	$query = $wpdb->prepare( 'SELECT u.user_email, u.ID, u.display_name, UNIX_TIMESTAMP(m.apmeta_date) as unix_date FROM '.$wpdb->prefix.'ap_meta m INNER JOIN '.$wpdb->prefix."users as u ON u.ID = m.apmeta_userid where m.apmeta_type = 'subscriber' AND m.apmeta_value = %d AND m.apmeta_param = 'comment' GROUP BY m.apmeta_userid", $post_id );
-
-	$key = md5( $query );
-
-	$q = wp_cache_get( $key, 'ap' );
-
-	if ( $q === false ) {
-		$q = $wpdb->get_results( $query );
-		wp_cache_set( $key, $q, 'ap' );
-	}
-
-	return $q;
+	_deprecated_function( 'ap_get_comments_subscribers_data', '2.4.3', '' );
 }
 
 if ( ! function_exists( 'ap_in_array_r' ) ) {
