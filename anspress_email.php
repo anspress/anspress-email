@@ -569,6 +569,11 @@ class AnsPress_Ext_AnsPress_Email
 
 	public function ap_after_update_question($question_id) {
 
+		// Only send question edit notifications to admin.
+		if ( ! ap_opt( 'notify_admin_edit_question' ) ) {
+			return;
+		}
+
 		$current_user = wp_get_current_user();
 
 		$question = get_post( $question_id );
@@ -577,22 +582,6 @@ class AnsPress_Ext_AnsPress_Email
 
 		if ( ap_opt( 'notify_admin_email' ) != $current_user->user_email && ap_opt( 'notify_admin_edit_question' ) ) {
 			$this->emails[] = ap_opt( 'notify_admin_email' );
-		}
-
-		$subscribers = ap_get_subscribers( $question_id, array('q_post', 'q_all'), 100, true );
-
-		$post_author  = get_user_by( 'id', $post->post_author );
-
-		if ( ! ap_in_array_r( $post_author->data->user_email, $subscribers ) ) {
-			$subscribers[] = (object) array( 'user_email' => $post_author->data->user_email, 'ID' => $post_author->ID, 'display_name' => $post_author->data->display_name );
-		}
-
-		if ( $subscribers ) {
-			foreach ( $subscribers as $s ) {
-				if ( !empty($s->user_email) && $s->user_email != $current_user->user_email ) {
-					$this->emails[] = $s->user_email; 
-				}
-			}
 		}
 
 		if ( ! is_array( $this->emails ) || empty( $this->emails ) ) {
@@ -619,6 +608,7 @@ class AnsPress_Ext_AnsPress_Email
 
 	public function ap_after_update_answer($answer_id) {
 
+		// Only send answer edit notifications to admin.
 		if ( ! ap_opt( 'notify_admin_edit_answer' ) ) {
 			return;
 		}
@@ -631,22 +621,6 @@ class AnsPress_Ext_AnsPress_Email
 
 		if ( ap_opt( 'notify_admin_email' ) != $current_user->user_email && ap_opt( 'notify_admin_edit_answer' ) ) {
 			$this->emails[] = ap_opt( 'notify_admin_email' ); }
-
-		$subscribers = ap_get_subscribers( $answer_id, 'a_all', 100, true );
-
-		$post_author  = get_user_by( 'id', $answer->post_author );
-
-		if ( ! ap_in_array_r( $post_author->data->user_email, $subscribers ) ) {
-			$subscribers[] = (object) array( 'user_email' => $post_author->data->user_email, 'ID' => $post_author->ID, 'display_name' => $post_author->data->display_name );
-		}
-
-		if ( $subscribers ) {
-			foreach ( $subscribers as $s ) {
-				if ( !empty($s->user_email) && $s->user_email != $current_user->user_email ) {
-					$this->emails[] = $s->user_email;
-				}
-			}
-		}
 
 		if ( ! is_array( $this->emails ) || empty( $this->emails ) ) {
 			return;
