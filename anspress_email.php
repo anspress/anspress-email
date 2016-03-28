@@ -14,7 +14,7 @@
  * Plugin Name:       AnsPress Email
  * Plugin URI:        http://anspress.io
  * Description:       Email notification extension for AnsPress
- * Version:           1.3
+ * Version:           2.0
  * Author:            Rahul Aryan
  * Author URI:        http://anspress.io
  * Text Domain:       anspress_email
@@ -69,15 +69,11 @@ class AnsPress_Ext_AnsPress_Email
 		if ( ! class_exists( 'AnsPress' ) ) {
 			return; // AnsPress not installed
 		}
-		if ( ! defined( 'ANSPRESS_EMAIL_DIR' ) ) {
-			define( 'ANSPRESS_EMAIL_DIR', plugin_dir_path( __FILE__ ) ); }
 
-		if ( ! defined( 'ANSPRESS_EMAIL_URL' ) ) {
-				define( 'ANSPRESS_EMAIL_URL', plugin_dir_url( __FILE__ ) ); }
+		$this->includes();
 
 		// internationalization
 		add_action( 'init', array( $this, 'textdomain' ) );
-		add_filter( 'ap_default_options', array( $this, 'ap_default_options' ) );
 		add_action( 'init', array( $this, 'register_option' ), 100 );
 
 		add_action( 'ap_after_new_question', array( $this, 'ap_after_new_question' ) );
@@ -94,6 +90,7 @@ class AnsPress_Ext_AnsPress_Email
 		add_action( 'ap_trash_question', array( $this, 'ap_trash_question' ) );
 		add_action( 'ap_trash_answer', array( $this, 'ap_trash_answer' ) );
 	}
+
 	/**
 	 * Load plugin text domain
 	 *
@@ -112,6 +109,21 @@ class AnsPress_Ext_AnsPress_Email
 
 	}
 
+	/**
+	 * Include required files
+	 */
+	public function includes() {
+		if ( ! defined( 'ANSPRESS_EMAIL_DIR' ) ) {
+			define( 'ANSPRESS_EMAIL_DIR', plugin_dir_path( __FILE__ ) );
+		}
+
+		if ( ! defined( 'ANSPRESS_EMAIL_URL' ) ) {
+			define( 'ANSPRESS_EMAIL_URL', plugin_dir_url( __FILE__ ) );
+		}
+
+		require_once( ANSPRESS_EMAIL_DIR . 'functions.php' );
+	}
+
 
 	/**
 	 * Apppend default options
@@ -119,7 +131,7 @@ class AnsPress_Ext_AnsPress_Email
 	 * @return  array
 	 * @since   1.0
 	 */
-	public function ap_default_options($defaults) {
+	public static function ap_default_options($defaults) {
 
 		$defaults['notify_admin_email']         = get_option( 'admin_email' );
 		$defaults['plain_email']                = false;
@@ -736,44 +748,19 @@ class AnsPress_Ext_AnsPress_Email
  */
 
 function anspress_ext_AnsPress_Email() {
-	$anspress_ext_AnsPress_Email = new AnsPress_Ext_AnsPress_Email();
+	if ( apply_filters( 'anspress_load_ext', true, 'anspress-email' ) ) {
+		$anspress_ext_AnsPress_Email = new AnsPress_Ext_AnsPress_Email();
+	}
 }
 add_action( 'plugins_loaded', 'anspress_ext_AnsPress_Email' );
 
-function anspress_activate_anspress_email() {
-	$settings = get_option( 'anspress_opt' );
-	unset( $settings['edit_question_email_subject'] );
-	unset( $settings['edit_question_email_body'] );
-	unset( $settings['edit_answer_email_subject'] );
-	unset( $settings['edit_answer_email_body'] );
-	update_option( 'anspress_opt', $settings );
-}
-register_activation_hook( __FILE__, 'anspress_activate_anspress_email' );
 
 /**
- * Get the email ids of all subscribers of question
- * @param  integer $post_id
- * @return array
- * @deprecated 1.3
+ * Load extensions files before loading AnsPress
+ * @return void
+ * @since  1.0
  */
-function ap_get_question_subscribers_data($post_id, $question_subsciber = true) {
-	_deprecated_function( 'ap_get_question_subscribers_data', '1.3', '' );
+function anspress_loaded_anspress_email() {	
+	add_filter( 'ap_default_options', array( 'AnsPress_Ext_AnsPress_Email', 'ap_default_options' ) );
 }
-
-/**
- * @deprecated 1.3
- */
-function ap_get_comments_subscribers_data($post_id) {
-	_deprecated_function( 'ap_get_comments_subscribers_data', '1.3', '' );
-}
-
-if ( ! function_exists( 'ap_in_array_r' ) ) {
-	function ap_in_array_r($needle, $haystack, $strict = false) {
-		foreach ( $haystack as $item ) {
-			if ( ($strict ? $item === $needle : $item == $needle) || (is_array( $item ) && in_array_r( $needle, $item, $strict )) ) {
-				return true;
-			}
-		}
-		return false;
-	}
-}
+add_action( 'before_loading_anspress', 'anspress_loaded_anspress_email' );

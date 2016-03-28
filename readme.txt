@@ -3,7 +3,7 @@ Contributors: nerdaryan
 Donate link: https://www.paypal.com/cgi-bin/webscr?business=rah12@live.com&cmd=_xclick&item_name=Donation%20to%20AnsPress%20development
 Tags: anspress, question, answer, q&a, forum, stackoverflow, quora
 Requires at least: 3.5.1
-Tested up to: 4.2
+Tested up to: 4.4
 Stable tag: 1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -54,3 +54,22 @@ e.g.
 2. Extract the `anspress_email` directory to your computer
 3. Upload the `anspress_email` directory to the `/wp-content/plugins/` directory
 4. Activate the plugin in the Plugin dashboard
+
+
+== Changelog ==
+
+= 1.3 =
+	* Fixed: replaced selecting_userid with het_current_user_id()
+	* Removed call for ap_get_comments_subscribers_data
+	* Notifications to subscribers on answers.
+	* Deprecated ap_get_comments_subscribers_data
+	* Deprecated function ap_get_question_subscribers_data
+	* Replaced old ap_meta table query with ap_get_subscribers
+	* Do not notify user of question edits
+	* Typo, added comment excerpt.
+	* Removed var_dump
+	* Fix: MySql syntax error
+	* Sanitized and escaped slash
+	* Updated .mo
+	* French translation added
+
