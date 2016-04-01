@@ -74,7 +74,7 @@ class AnsPress_Ext_AnsPress_Email
 
 		// internationalization
 		add_action( 'init', array( $this, 'textdomain' ) );
-		add_action( 'init', array( $this, 'register_option' ), 100 );
+		add_action( 'ap_option_groups', array( $this, 'register_option' ), 100 );
 
 		add_action( 'ap_after_new_question', array( $this, 'ap_after_new_question' ) );
 		add_action( 'ap_after_new_answer', array( $this, 'ap_after_new_answer' ) );
@@ -189,10 +189,6 @@ class AnsPress_Ext_AnsPress_Email
 	 * Register options
 	 */
 	public function register_option() {
-		if ( ! is_admin() ) {
-			return;
-		}
-
 		// Register general settings.
 		ap_register_option_group('email', __( 'Email', 'AnsPress_Email' ) , array(
 			array(
