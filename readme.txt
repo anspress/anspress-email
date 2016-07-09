@@ -4,7 +4,7 @@ Donate link: https://www.paypal.com/cgi-bin/webscr?business=rah12@live.com&cmd=_
 Tags: anspress, question, answer, q&a, forum, stackoverflow, quora
 Requires at least: 3.5.1
 Tested up to: 4.4
-Stable tag: 2.0.0
+Stable tag: 2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -57,6 +57,9 @@ e.g.
 
 
 == Changelog ==
+
+= 2.1 =
+	* Fixed some bugs and made compatible with AnsPress 3.0
 
 = 1.3 =
 	* Fixed: replaced selecting_userid with het_current_user_id()

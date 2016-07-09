@@ -1,8 +1,8 @@
 {
 	"name": "AnsPress Email",
 	"description": "Notify site admin and community by email",
-	"version": "1.3",
-	"tested_up_to": "4.3",
+	"version": "2.1",
+	"tested_up_to": "4.4",
 	"updated": "",
 	"licence": "GPL-3.0+",
 	"licence_link": "http://www.gnu.org/licenses/gpl.txt",
