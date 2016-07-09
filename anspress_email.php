@@ -178,8 +178,8 @@ class AnsPress_Ext_AnsPress_Email
 	public function value($name) {
 		$settings = ap_opt();
 		if ( isset( $settings[ $name ] ) ) {
-			return str_replace( "//", "", $settings[ $name ] );
-        }
+			return str_replace( '//', '', $settings[ $name ] );
+		}
 
 		return '';
 	}
@@ -192,11 +192,10 @@ class AnsPress_Ext_AnsPress_Email
 		// Register general settings.
 		ap_register_option_group('email', __( 'Email', 'AnsPress_Email' ) , array(
 			array(
-				'name' => 'anspress_opt[notify_admin_email]',
+				'name' => 'notify_admin_email',
 				'label' => __( 'Admin email', 'AnsPress_Email' ),
 				'desc' => __( 'Enter email where admin notification should be sent', 'AnsPress_Email' ),
 				'type' => 'text',
-				'value' => $this->value( 'notify_admin_email' ),
 				'show_desc_tip' => false,
 			),
 
@@ -206,59 +205,52 @@ class AnsPress_Ext_AnsPress_Email
 				'html' => '<span class="ap-form-separator">' . __( 'Notify admin', 'AnsPress_Email' ) . '</span>',
 			) ,
 			array(
-				'name' => 'anspress_opt[notify_admin_new_question]',
+				'name' => 'notify_admin_new_question',
 				'label' => __( 'New question', 'AnsPress_Email' ),
 				'desc' => __( 'Send email to admin for every new question.', 'AnsPress_Email' ),
 				'type' => 'checkbox',
-				'value' => $this->value( 'notify_admin_new_question' ),
 				'show_desc_tip' => false,
 			),
 			array(
-				'name' => 'anspress_opt[notify_admin_new_answer]',
+				'name' => 'notify_admin_new_answer',
 				'label' => __( 'New answer', 'AnsPress_Email' ),
 				'desc' => __( 'Send email to admin for every new answer.', 'AnsPress_Email' ),
 				'type' => 'checkbox',
-				'value' => $this->value( 'notify_admin_new_answer' ),
 				'show_desc_tip' => false,
 			),
 			array(
-				'name' => 'anspress_opt[notify_admin_new_comment]',
+				'name' => 'notify_admin_new_comment',
 				'label' => __( 'New comment', 'AnsPress_Email' ),
 				'desc' => __( 'Send email to admin for every new comment.', 'AnsPress_Email' ),
 				'type' => 'checkbox',
-				'value' => $this->value( 'notify_admin_new_comment' ),
 				'show_desc_tip' => false,
 			),
 			array(
-				'name' => 'anspress_opt[notify_admin_edit_question]',
+				'name' => 'notify_admin_edit_question',
 				'label' => __( 'Edit question', 'AnsPress_Email' ),
 				'desc' => __( 'Send email to admin when question is edited', 'AnsPress_Email' ),
 				'type' => 'checkbox',
-				'value' => $this->value( 'notify_admin_edit_question' ),
 				'show_desc_tip' => false,
 			),
 			array(
-				'name' => 'anspress_opt[notify_admin_edit_answer]',
+				'name' => 'notify_admin_edit_answer',
 				'label' => __( 'Edit answer', 'AnsPress_Email' ),
 				'desc' => __( 'Send email to admin when answer is edited', 'AnsPress_Email' ),
 				'type' => 'checkbox',
-				'value' => $this->value( 'notify_admin_edit_answer' ),
 				'show_desc_tip' => false,
 			),
 			array(
-				'name' => 'anspress_opt[notify_admin_trash_question]',
+				'name' => 'notify_admin_trash_question',
 				'label' => __( 'Delete question', 'AnsPress_Email' ),
 				'desc' => __( 'Send email to admin when question is trashed', 'AnsPress_Email' ),
 				'type' => 'checkbox',
-				'value' => $this->value( 'notify_admin_trash_question' ),
 				'show_desc_tip' => false,
 			),
 			array(
-				'name' => 'anspress_opt[notify_admin_trash_answer]',
+				'name' => 'notify_admin_trash_answer',
 				'label' => __( 'Delete answer', 'AnsPress_Email' ),
 				'desc' => __( 'Send email to admin when asnwer is trashed', 'AnsPress_Email' ),
 				'type' => 'checkbox',
-				'value' => $this->value( 'notify_admin_trash_answer' ),
 				'show_desc_tip' => false,
 			),
 			array(
@@ -267,17 +259,15 @@ class AnsPress_Ext_AnsPress_Email
 				'html' => '<span class="ap-form-separator">' . __( 'New question', 'AnsPress_Email' ) . '</span>',
 			),
 			array(
-				'name' => 'anspress_opt[new_question_email_subject]',
+				'name' => 'new_question_email_subject',
 				'label' => __( 'Subject', 'AnsPress_Email' ),
 				'type' => 'text',
-				'value' => $this->value( 'new_question_email_subject' ),
 				'attr' => 'style="width:80%"',
 			),
 			array(
-				'name' => 'anspress_opt[new_question_email_body]',
+				'name' => 'new_question_email_body',
 				'label' => __( 'Body', 'AnsPress_Email' ),
 				'type' => 'textarea',
-				'value' => $this->value( 'new_question_email_body' ),
 				'attr' => 'style="width:100%;min-height:200px"',
 			),
 			array(
@@ -286,17 +276,15 @@ class AnsPress_Ext_AnsPress_Email
 				'html' => '<span class="ap-form-separator">' . __( 'New Answer', 'AnsPress_Email' ) . '</span>',
 			),
 			array(
-				'name' => 'anspress_opt[new_answer_email_subject]',
+				'name' => 'new_answer_email_subject',
 				'label' => __( 'Subject', 'AnsPress_Email' ),
 				'type' => 'text',
-				'value' => $this->value( 'new_answer_email_subject' ),
 				'attr' => 'style="width:80%"',
 			),
 			array(
-				'name' => 'anspress_opt[new_answer_email_body]',
+				'name' => 'new_answer_email_body',
 				'label' => __( 'Body', 'AnsPress_Email' ),
 				'type' => 'textarea',
-				'value' => $this->value( 'new_answer_email_body' ),
 				'attr' => 'style="width:100%;min-height:200px"',
 			),
 			array(
@@ -305,17 +293,15 @@ class AnsPress_Ext_AnsPress_Email
 				'html' => '<span class="ap-form-separator">' . __( 'Select Answer', 'AnsPress_Email' ) . '</span>',
 			),
 			array(
-				'name' => 'anspress_opt[select_answer_email_subject]',
+				'name' => 'select_answer_email_subject',
 				'label' => __( 'Subject', 'AnsPress_Email' ),
 				'type' => 'text',
-				'value' => $this->value( 'select_answer_email_subject' ),
 				'attr' => 'style="width:80%"',
 			),
 			array(
-				'name' => 'anspress_opt[select_answer_email_body]',
+				'name' => 'select_answer_email_body',
 				'label' => __( 'Body', 'AnsPress_Email' ),
 				'type' => 'textarea',
-				'value' => $this->value( 'select_answer_email_body' ),
 				'attr' => 'style="width:100%;min-height:200px"',
 			),
 			array(
@@ -324,17 +310,15 @@ class AnsPress_Ext_AnsPress_Email
 				'html' => '<span class="ap-form-separator">' . __( 'New comment', 'AnsPress_Email' ) . '</span>',
 			),
 			array(
-				'name' => 'anspress_opt[new_comment_email_subject]',
+				'name' => 'new_comment_email_subject',
 				'label' => __( 'Subject', 'AnsPress_Email' ),
 				'type' => 'text',
-				'value' => $this->value( 'new_comment_email_subject' ),
 				'attr' => 'style="width:80%"',
 			),
 			array(
-				'name' => 'anspress_opt[new_comment_email_body]',
+				'name' => 'new_comment_email_body',
 				'label' => __( 'Body', 'AnsPress_Email' ),
 				'type' => 'textarea',
-				'value' => $this->value( 'new_comment_email_body' ),
 				'attr' => 'style="width:100%;min-height:200px"',
 			),
 			array(
@@ -343,17 +327,15 @@ class AnsPress_Ext_AnsPress_Email
 				'html' => '<span class="ap-form-separator">' . __( 'Edit question', 'AnsPress_Email' ) . '</span>',
 			),
 			array(
-				'name' => 'anspress_opt[edit_question_email_subject]',
+				'name' => 'edit_question_email_subject',
 				'label' => __( 'Subject', 'AnsPress_Email' ),
 				'type' => 'text',
-				'value' => $this->value( 'edit_question_email_subject' ),
 				'attr' => 'style="width:80%"',
 			),
 			array(
-				'name' => 'anspress_opt[edit_question_email_body]',
+				'name' => 'edit_question_email_body',
 				'label' => __( 'Body', 'AnsPress_Email' ),
 				'type' => 'textarea',
-				'value' => $this->value( 'edit_question_email_body' ),
 				'attr' => 'style="width:100%;min-height:200px"',
 			),
 			array(
@@ -362,17 +344,15 @@ class AnsPress_Ext_AnsPress_Email
 				'html' => '<span class="ap-form-separator">' . __( 'Edit answer', 'AnsPress_Email' ) . '</span>',
 			),
 			array(
-				'name' => 'anspress_opt[edit_answer_email_subject]',
+				'name' => 'edit_answer_email_subject',
 				'label' => __( 'Subject', 'AnsPress_Email' ),
 				'type' => 'text',
-				'value' => $this->value( 'edit_answer_email_subject' ),
 				'attr' => 'style="width:80%"',
 			),
 			array(
-				'name' => 'anspress_opt[edit_answer_email_body]',
+				'name' => 'edit_answer_email_body',
 				'label' => __( 'Body', 'AnsPress_Email' ),
 				'type' => 'textarea',
-				'value' => $this->value( 'edit_answer_email_body' ),
 				'attr' => 'style="width:100%;min-height:200px"',
 			),
 		));
@@ -439,16 +419,17 @@ class AnsPress_Ext_AnsPress_Email
 
 			$this->emails[] = ap_opt( 'notify_admin_email' );
 
-			/*if ( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate') ) {
-				$users = ap_get_subscribers( $question_id, 'q_all', 100 );
+			/*
+			if ( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate') ) {
+                $users = ap_get_subscribers( $question_id, 'q_all', 100 );
 
-				if ( $users ) {
-					foreach ( $users as $user ) {
-						// Dont send email to poster
-						if ( $user->user_email != $current_user->user_email ) {
-							$this->emails[] = $user->user_email; }
-					}
-				}
+                if ( $users ) {
+                    foreach ( $users as $user ) {
+                        // Dont send email to poster
+                        if ( $user->user_email != $current_user->user_email ) {
+                            $this->emails[] = $user->user_email; }
+                    }
+                }
 			}*/
 
 			$this->initiate_send_email();
@@ -481,7 +462,7 @@ class AnsPress_Ext_AnsPress_Email
 				$this->emails[] = ap_opt( 'notify_admin_email' );
 			}
 
-			if ( ($answer->post_status != 'private_post' || $answer->post_status != 'moderate') ) {
+			if ( $answer->post_status != 'private_post' && $answer->post_status != 'moderate' ) {
 				$subscribers = ap_get_subscribers( $answer->post_parent, 'q_all', 100, true );
 				if ( $subscribers ) {
 					foreach ( $subscribers as $s ) {
@@ -567,7 +548,7 @@ class AnsPress_Ext_AnsPress_Email
 		if ( $subscribers ) {
 			foreach ( $subscribers as $s ) {
 				if ( $s->user_email != $current_user->user_email ) {
-					$this->emails[] = $s->user_email; 
+					$this->emails[] = $s->user_email;
 				}
 			}
 		}
@@ -587,7 +568,7 @@ class AnsPress_Ext_AnsPress_Email
 			$this->emails[] = ap_opt( 'notify_admin_email' );
 		}
 
-		$subscribers = ap_get_subscribers( $question_id, array('q_post', 'q_all'), 100, true );
+		$subscribers = ap_get_subscribers( $question_id, array( 'q_post', 'q_all' ), 100, true );
 
 		$post_author  = get_user_by( 'id', $post->post_author );
 
@@ -597,8 +578,8 @@ class AnsPress_Ext_AnsPress_Email
 
 		if ( $subscribers ) {
 			foreach ( $subscribers as $s ) {
-				if ( !empty($s->user_email) && $s->user_email != $current_user->user_email ) {
-					$this->emails[] = $s->user_email; 
+				if ( ! empty($s->user_email ) && $s->user_email != $current_user->user_email ) {
+					$this->emails[] = $s->user_email;
 				}
 			}
 		}
@@ -650,7 +631,7 @@ class AnsPress_Ext_AnsPress_Email
 
 		if ( $subscribers ) {
 			foreach ( $subscribers as $s ) {
-				if ( !empty($s->user_email) && $s->user_email != $current_user->user_email ) {
+				if ( ! empty($s->user_email ) && $s->user_email != $current_user->user_email ) {
 					$this->emails[] = $s->user_email;
 				}
 			}
@@ -744,11 +725,19 @@ class AnsPress_Ext_AnsPress_Email
  */
 
 function anspress_ext_AnsPress_Email() {
+	if ( ! defined( 'AP_VERSION' ) || ! version_compare( AP_VERSION, '3.0.0', '>=' ) ) {
+		function ap_email_admin_error_notice() {
+		    echo '<div class="update-nag error"> <p>'.sprintf( __( 'Email extension require AnsPress 3.0.0 or above. Download from Github %shttp://github.com/anspress/anspress-email%s', 'tags-for-anspress', 'categories-for-anspress' ), '<a target="_blank" href="http://github.com/anspress/anspress-email">', '</a>' ).'</p></div>';
+		}
+		add_action( 'admin_notices', 'ap_email_admin_error_notice' );
+		return;
+	}
+
 	if ( apply_filters( 'anspress_load_ext', true, 'anspress-email' ) ) {
 		$anspress_ext_AnsPress_Email = new AnsPress_Ext_AnsPress_Email();
 	}
 }
-add_action( 'plugins_loaded', 'anspress_ext_AnsPress_Email' );
+add_action( 'anspress_loaded', 'anspress_ext_AnsPress_Email' );
 
 
 /**
@@ -756,7 +745,7 @@ add_action( 'plugins_loaded', 'anspress_ext_AnsPress_Email' );
  * @return void
  * @since  1.0
  */
-function anspress_loaded_anspress_email() {	
+function anspress_loaded_anspress_email() {
 	add_filter( 'ap_default_options', array( 'AnsPress_Ext_AnsPress_Email', 'ap_default_options' ) );
 }
 add_action( 'before_loading_anspress', 'anspress_loaded_anspress_email' );
